@@ -1,4 +1,9 @@
+body {
+  max-width: 1200px;
+  margin: auto;
+}
 .navbar {
+  margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -266,6 +271,65 @@
   background-color: #eef6ff;
   cursor: pointer;
 }
+.add-task-card {
+  background-color: #f9f9f9;
+  border: 2px dashed #4e8b2d;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.add-task-card.expanded {
+  max-height: 600px; 
+  padding-bottom: 40px;
+  border: 2px solid #4e8b2d;
+}
+.add-task-btn {
+  background-color: #4e8b2d;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.add-task-btn:hover {
+  background-color: #3b703d;
+}
+.add-task-form {
+  margin-top: 20px;
+}
+.add-task-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.add-task-form input,
+.add-task-form textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.add-task-form textarea {
+  resize: vertical;
+  height: 100px;
+}
+.add-task-form button {
+  background-color: #4e8b2d;
+  color: white;
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.add-task-form button:hover {
+  background-color: #3b703d;
+}
 .footer {
   background-color: #333;
   color: #fff;
@@ -349,4 +413,47 @@
 }
 .icon {
   margin-right: 5px;
+}
+.add-priority-btn {
+  margin: 10px 0;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.priority-form {
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+.priority-form input {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.priority-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+.priority-table th,
+.priority-table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+.priority-table th {
+  background-color: #f4f4f4;
+}
+.pie-chart {
+  margin-top: 30px;
+  max-width: 600px;
 }

@@ -5,6 +5,7 @@ import Footer from "./components/footer";
 import Project from "./pages/project";
 import Teams from "./pages/team";
 import "./index.css";
+import Priority from "./pages/priority";
 
 
 function App() {
@@ -15,6 +16,8 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<Project/>} />
+            <Route path="/team" element={<Teams/>} />
+            <Route path="/priority" element={<Priority/>} />
             <Route path="/team" element={<Teams/>} />
           </Routes>
         </main>

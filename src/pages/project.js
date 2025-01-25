@@ -1,53 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaFilter, FaPlusCircle } from "react-icons/fa";
+import axios from "axios";
 
 const Project = () => {
   const [filterDropdownVisible, setFilterDropdownVisible] = useState(false);
   const [sideDropdown, setSideDropdown] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState({ title: "", description: "", assignedTo: "", startDate: "", dueDate: "" });
+  const [addTaskExpanded, setAddTaskExpanded] = useState(false); // State for expanding the add task card
 
   const projectName = "Project 1";
 
-  const toggleFilterDropdown = () => {
-    if (filterDropdownVisible) {
-      // If dropdown is visible, close it and reset the side dropdown
-      setFilterDropdownVisible(false);
-      setSideDropdown("");
-    } else {
-      // Open the dropdown
-      setFilterDropdownVisible(true);
+  // Fetch tasks from the backend
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get("http://localhost:5001/tasks");
+      setTasks(response.data);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
     }
   };
 
+  const toggleFilterDropdown = () => {
+    setFilterDropdownVisible(!filterDropdownVisible);
+    setSideDropdown(""); // Reset side dropdown
+  };
+
   const toggleSideDropdown = (type) => {
-    // Toggle the specific side dropdown
     setSideDropdown(sideDropdown === type ? "" : type);
   };
 
-  const assignments = []; // Replace with an array of assigned names if available
-
-  const tasks = [
-    {
-      title: "Task 1",
-      assignedTo: "JK", // Initials of the assigned user
-      description: "This is the first task for the project.",
-      startDate: "2025-01-01",
-      dueDate: "2025-01-10",
-    },
-    {
-      title: "Task 2",
-      assignedTo: "AM",
-      description: "This task needs attention on priority.",
-      startDate: "2025-01-05",
-      dueDate: "2025-01-15",
-    },
-    {
-      title: "Task 3",
-      assignedTo: "RB",
-      description: "Finalize and submit the documentation.",
-      startDate: "2025-01-08",
-      dueDate: "2025-01-20",
-    },
-  ];
+  const handleAddTask = async () => {
+    try {
+      const response = await axios.post("http://localhost:5001/tasks", newTask);
+      setTasks([...tasks, response.data]); // Update tasks with the newly added task
+      setNewTask({ title: "", description: "", assignedTo: "", startDate: "", dueDate: "" }); // Reset form
+      setAddTaskExpanded(false); // Close the add task form after submission
+    } catch (error) {
+      console.error("Error adding task:", error);
+    }
+  };
 
   return (
     <div className="project-page">
@@ -72,11 +68,6 @@ const Project = () => {
               </div>
             )}
           </div>
-
-          {/* Add Task Button */}
-          <button className="add-task-btn">
-            <FaPlusCircle className="icon" /> Add Task
-          </button>
         </div>
       </nav>
 
@@ -119,11 +110,9 @@ const Project = () => {
           <div className="side-dropdown">
             <h3>Assignment</h3>
             <ul>
-              {assignments.length > 0 ? (
-                assignments.map((name, index) => <li key={index}>{name}</li>)
-              ) : (
-                <li>None</li>
-              )}
+              {tasks.map((task, index) => (
+                <li key={index}>{task.assignedTo || "Unassigned"}</li>
+              ))}
             </ul>
           </div>
         )}
@@ -147,10 +136,58 @@ const Project = () => {
           ))}
 
           {/* Add Card Button */}
-          <div className="task-card add-task-card">
-            <button className="add-task-btn">
+          <div className={`task-card add-task-card ${addTaskExpanded ? "expanded" : ""}`}>
+            <button
+              className="add-task-btn"
+              onClick={() => setAddTaskExpanded(!addTaskExpanded)} // Toggle expand form
+            >
               <FaPlusCircle className="icon" /> Add Task
             </button>
+
+            {/* Add Task Form inside the card */}
+            {addTaskExpanded && (
+              <div className="add-task-form">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleAddTask();
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="Title"
+                    value={newTask.title}
+                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    required
+                  />
+                  <textarea
+                    placeholder="Description"
+                    value={newTask.description}
+                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Assigned To"
+                    value={newTask.assignedTo}
+                    onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value })}
+                  />
+                  <input
+                    type="date"
+                    placeholder="Start Date"
+                    value={newTask.startDate}
+                    onChange={(e) => setNewTask({ ...newTask, startDate: e.target.value })}
+                  />
+                  <input
+                    type="date"
+                    placeholder="Due Date"
+                    value={newTask.dueDate}
+                    onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                  />
+                  <button type="submit">Add Task</button>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       </div>

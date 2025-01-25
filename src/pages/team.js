@@ -96,22 +96,18 @@ const Teams = () => {
       <table className="team-table">
         <thead>
           <tr>
+            <th></th>
             <th>Name</th>
             <th>Skills</th>
             <th>Email</th>
             <th>Experience (Years)</th>
             <th>Position</th>
-            <th>Icon</th>
+            
           </tr>
         </thead>
         <tbody>
           {teamMembers.map((member, index) => (
             <tr key={index}>
-              <td>{member.name}</td>
-              <td>{member.skills}</td>
-              <td>{member.email}</td>
-              <td>{member.experience}</td>
-              <td>{member.position}</td>
               <td className="user-icon">
                 <FaUserCircle />
                 {member.name
@@ -119,6 +115,11 @@ const Teams = () => {
                   .map((n) => n[0])
                   .join("")}
               </td>
+              <td>{member.name}</td>
+              <td>{member.skills}</td>
+              <td>{member.email}</td>
+              <td>{member.experience}</td>
+              <td>{member.position}</td>
             </tr>
           ))}
         </tbody>

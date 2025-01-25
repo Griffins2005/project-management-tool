@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { FaUserPlus, FaSave, FaEnvelope, FaUserCircle } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaUserPlus, FaSave, FaEnvelope, FaUserCircle, FaTrash, FaEdit } from "react-icons/fa";
 
 const Teams = () => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [formVisible, setFormVisible] = useState(false);
+  const [editMemberId, setEditMemberId] = useState(null); // Track the member being edited
   const [newMember, setNewMember] = useState({
     name: "",
     skills: "",
@@ -11,42 +12,112 @@ const Teams = () => {
     experience: "",
     position: "",
   });
+  const [message, setMessage] = useState(""); // Success/error message
 
-  // Toggle form visibility
-  const toggleForm = () => setFormVisible(!formVisible);
+  useEffect(() => {
+    fetchTeamMembers();
+  }, []);
 
-  // Handle form input changes
+  // Fetch team members from the backend
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/api/team/members");
+      const data = await response.json();
+      setTeamMembers(data);
+    } catch (error) {
+      console.error("Error fetching team members:", error);
+      setMessage("Failed to fetch team members.");
+    }
+  };
+
+  const toggleForm = () => {
+    setFormVisible(!formVisible);
+    setEditMemberId(null); 
+    setNewMember({ name: "", skills: "", email: "", experience: "", position: "" }); 
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewMember((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Add new member to the table
-  const saveMember = () => {
+  const saveMember = async () => {
     const { name, skills, email, experience, position } = newMember;
-
+  
     if (name && skills && email && experience && position) {
-      setTeamMembers((prev) => [...prev, newMember]);
-      setNewMember({ name: "", skills: "", email: "", experience: "", position: "" });
-      setFormVisible(false);
+      try {
+        const url = editMemberId
+          ? `http://localhost:5001/api/team/members/${editMemberId}` 
+          : "http://localhost:5001/api/team/members"; 
+  
+        const method = editMemberId ? "PUT" : "POST";
+  
+        const response = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newMember),
+        });
+  
+        if (response.ok) {
+          setMessage(
+            editMemberId ? "Member updated successfully!" : "Member added successfully!"
+          );
+          setNewMember({ name: "", skills: "", email: "", experience: "", position: "" });
+          setFormVisible(false);
+          setEditMemberId(null);
+          fetchTeamMembers(); 
+        } else {
+          const errorData = await response.json();
+          setMessage(`Failed to save member: ${errorData.message}`);
+        }
+      } catch (error) {
+        console.error("Error saving member:", error);
+        setMessage("Failed to save member.");
+      }
     } else {
-      alert("Please fill in all fields!");
+      setMessage("Please fill in all fields!");
     }
+  };
+ 
+  const deleteMember = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/team/members/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setMessage("Member deleted successfully!");
+        fetchTeamMembers(); // Refresh the list
+      } else {
+        setMessage("Failed to delete member.");
+      }
+    } catch (error) {
+      console.error("Error deleting member:", error);
+      setMessage("Failed to delete member.");
+    }
+  };
+
+  // Edit a team member
+  const editMember = (member) => {
+    setNewMember(member); // Populate form with member data
+    setEditMemberId(member._id); // Set the member ID being edited
+    setFormVisible(true); // Show the form
   };
 
   return (
     <div className="teams-page">
       <h1>Teams</h1>
+      {message && <div className="message">{message}</div>} {/* Display message */}
       <button className="add-member-btn" onClick={toggleForm}>
-        <FaUserPlus className="icon" /> Add Team Member
+        <FaUserPlus className="icon" /> {editMemberId ? "Edit Team Member" : "Add Team Member"}
       </button>
 
-      {/* Form to Add Team Member */}
+      {/* Form to Add/Edit Team Member */}
       {formVisible && (
         <div className="add-member-form">
           <h3>
             <FaUserCircle className="icon" />
-            Add New Team Member
+            {editMemberId ? "Edit Team Member" : "Add New Team Member"}
           </h3>
           <input
             type="text"
@@ -87,7 +158,7 @@ const Teams = () => {
             onChange={handleInputChange}
           />
           <button className="save-btn" onClick={saveMember}>
-            <FaSave className="icon" /> Save
+            <FaSave className="icon" /> {editMemberId ? "Update" : "Save"}
           </button>
         </div>
       )}
@@ -96,30 +167,30 @@ const Teams = () => {
       <table className="team-table">
         <thead>
           <tr>
-            <th></th>
             <th>Name</th>
             <th>Skills</th>
             <th>Email</th>
             <th>Experience (Years)</th>
             <th>Position</th>
-            
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {teamMembers.map((member, index) => (
-            <tr key={index}>
-              <td className="user-icon">
-                <FaUserCircle />
-                {member.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </td>
+          {teamMembers.map((member) => (
+            <tr key={member._id}>
               <td>{member.name}</td>
               <td>{member.skills}</td>
               <td>{member.email}</td>
               <td>{member.experience}</td>
               <td>{member.position}</td>
+              <td>
+                <button className="edit-btn" onClick={() => editMember(member)}>
+                  <FaEdit className="icon" /> Edit
+                </button>
+                <button className="delete-btn" onClick={() => deleteMember(member._id)}>
+                  <FaTrash className="icon" /> Delete
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

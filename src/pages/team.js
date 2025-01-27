@@ -185,10 +185,10 @@ const Teams = () => {
               <td>{member.position}</td>
               <td>
                 <button className="edit-btn" onClick={() => editMember(member)}>
-                  <FaEdit className="icon" /> Edit
+                  <FaEdit className="icon" />
                 </button>
                 <button className="delete-btn" onClick={() => deleteMember(member._id)}>
-                  <FaTrash className="icon" /> Delete
+                  <FaTrash className="icon" />
                 </button>
               </td>
             </tr>

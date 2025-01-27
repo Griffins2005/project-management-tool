@@ -7,13 +7,21 @@ const Project = () => {
   const [sideDropdown, setSideDropdown] = useState("");
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({ title: "", description: "", assignedTo: "", startDate: "", dueDate: "" });
-  const [addTaskExpanded, setAddTaskExpanded] = useState(false); // State for expanding the add task card
+  const [addTaskExpanded, setAddTaskExpanded] = useState(false);
+
+  // State for fetched lists
+  const [priorities, setPriorities] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
 
   const projectName = "Project 1";
 
-  // Fetch tasks from the backend
+  // Fetch tasks, priorities, statuses, and team members on component mount
   useEffect(() => {
     fetchTasks();
+    fetchPriorities();
+    fetchStatuses();
+    fetchTeamMembers();
   }, []);
 
   const fetchTasks = async () => {
@@ -22,6 +30,33 @@ const Project = () => {
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
+    }
+  };
+
+  const fetchPriorities = async () => {
+    try {
+      const response = await axios.get("http://localhost:5001/priorities");
+      setPriorities(response.data);
+    } catch (error) {
+      console.error("Error fetching priorities:", error);
+    }
+  };
+
+  const fetchStatuses = async () => {
+    try {
+      const response = await axios.get("http://localhost:5001/statuses");
+      setStatuses(response.data);
+    } catch (error) {
+      console.error("Error fetching statuses:", error);
+    }
+  };
+
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await axios.get("http://localhost:5001/teams");
+      setTeamMembers(response.data);
+    } catch (error) {
+      console.error("Error fetching team members:", error);
     }
   };
 
@@ -90,9 +125,9 @@ const Project = () => {
           <div className="side-dropdown">
             <h3>Priority</h3>
             <ul>
-              <li>High</li>
-              <li>Medium</li>
-              <li>Low</li>
+              {priorities.map((priority, index) => (
+                <li key={index}>{priority}</li>
+              ))}
             </ul>
           </div>
         )}
@@ -100,9 +135,9 @@ const Project = () => {
           <div className="side-dropdown">
             <h3>Progress</h3>
             <ul>
-              <li>Not Started</li>
-              <li>In Progress</li>
-              <li>Completed</li>
+              {statuses.map((status, index) => (
+                <li key={index}>{status}</li>
+              ))}
             </ul>
           </div>
         )}
@@ -110,8 +145,8 @@ const Project = () => {
           <div className="side-dropdown">
             <h3>Assignment</h3>
             <ul>
-              {tasks.map((task, index) => (
-                <li key={index}>{task.assignedTo || "Unassigned"}</li>
+              {teamMembers.map((member, index) => (
+                <li key={index}>{member.name}</li>
               ))}
             </ul>
           </div>
@@ -166,12 +201,17 @@ const Project = () => {
                     onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
                     required
                   />
-                  <input
-                    type="text"
-                    placeholder="Assigned To"
+                  <select
                     value={newTask.assignedTo}
                     onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value })}
-                  />
+                  >
+                    <option value="">Select Assignee</option>
+                    {teamMembers.map((member, index) => (
+                      <option key={index} value={member.name}>
+                        {member.name}
+                      </option>
+                    ))}
+                  </select>
                   <input
                     type="date"
                     placeholder="Start Date"

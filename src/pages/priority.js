@@ -88,9 +88,10 @@ const Priority = () => {
         return;
       }
 
-      const url = editIndex !== null
-        ? `${API_URL}/priorities/${priorities[editIndex]._id}`
-        : `${API_URL}/priorities`;
+      const url =
+        editIndex !== null
+          ? `${API_URL}/priorities/${priorities[editIndex]._id}`
+          : `${API_URL}/priorities`;
       const method = editIndex !== null ? "PUT" : "POST";
 
       const response = await fetch(url, {
@@ -137,22 +138,15 @@ const Priority = () => {
     fetchTasks();
   }, []);
 
-  useEffect(() => {
-    const chartInstance = chartRef.current;
-
-    return () => {
-      if (chartInstance) {
-        chartInstance.destroy();
-      }
-    };
-  }, []);
-
   // Calculate task counts for each priority
   const calculateTaskCounts = () => {
     return priorities.map((priority) => {
       const { start, end } = priority;
       const count = tasks.filter(
-        (task) => task.priority === priority.name && task.dueDate >= start && task.dueDate <= end
+        (task) =>
+          task.priority === priority.name &&
+          task.dueDate >= start &&
+          task.dueDate <= end
       ).length;
       return { ...priority, count };
     });
@@ -231,7 +225,6 @@ const Priority = () => {
           <tr>
             <th>Priority Name</th>
             <th>Days Range</th>
-            <th>Color</th>
             <th>Task Count</th>
             <th>Action</th>
           </tr>
@@ -241,12 +234,6 @@ const Priority = () => {
             <tr key={index}>
               <td>{priority.name}</td>
               <td>{`${priority.start}-${priority.end}`}</td>
-              <td>
-                <span
-                  className="color-box"
-                  style={{ backgroundColor: priority.color }}
-                ></span>
-              </td>
               <td>{priority.count}</td>
               <td>
                 <button
@@ -262,13 +249,13 @@ const Priority = () => {
                     setFormVisible(true);
                   }}
                 >
-                  <FaEdit className="icon" /> Edit
+                  <FaEdit className="icon" />
                 </button>
                 <button
                   className="delete-btn"
                   onClick={() => deletePriority(priority._id)}
                 >
-                  <FaTrash className="icon" /> Delete
+                  <FaTrash className="icon" />
                 </button>
               </td>
             </tr>
@@ -279,10 +266,7 @@ const Priority = () => {
       {/* Pie Chart */}
       <div className="pie-chart">
         <h3>Priority Distribution</h3>
-        <Pie
-          data={pieData}
-          ref={chartRef} 
-        />
+        <Pie data={pieData} ref={chartRef} />
       </div>
     </div>
   );

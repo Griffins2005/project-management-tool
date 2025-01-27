@@ -12,8 +12,6 @@ const Priority = () => {
   const [editIndex, setEditIndex] = useState(null);
   const [newPriority, setNewPriority] = useState({
     name: "",
-    start: "",
-    end: "",
     color: "#000000", // Default color
   });
 
@@ -47,44 +45,12 @@ const Priority = () => {
     }
   };
 
-  // Check if a range overlaps with existing ranges
-  const isRangeOverlapping = (newStart, newEnd) => {
-    return priorities.some((priority) => {
-      const [start, end] = [priority.start, priority.end];
-      return (
-        (newStart >= start && newStart <= end) ||
-        (newEnd >= start && newEnd <= end) ||
-        (newStart <= start && newEnd >= end)
-      );
-    });
-  };
-
   const addOrUpdatePriority = async () => {
     try {
-      const { name, start, end, color } = newPriority;
+      const { name, color } = newPriority;
 
-      // Validate the range
-      if (start === "" || end === "") {
-        alert("Please fill in both start and end values.");
-        return;
-      }
-
-      const startNum = Number(start);
-      const endNum = Number(end);
-
-      if (isNaN(startNum) || isNaN(endNum)) {
-        alert("Start and end must be numbers.");
-        return;
-      }
-
-      if (startNum > endNum) {
-        alert("Start value must be less than or equal to end value.");
-        return;
-      }
-
-      // Check if the range overlaps with existing ranges
-      if (isRangeOverlapping(startNum, endNum)) {
-        alert("The range overlaps with an existing priority.");
+      if (!name || !color) {
+        alert("Please fill in all fields.");
         return;
       }
 
@@ -97,7 +63,7 @@ const Priority = () => {
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, start: startNum, end: endNum, color }),
+        body: JSON.stringify({ name, color }),
       });
 
       if (!response.ok) {
@@ -116,7 +82,7 @@ const Priority = () => {
         setPriorities((prev) => [...prev, data]);
       }
 
-      setNewPriority({ name: "", start: "", end: "", color: "#000000" }); // Reset form
+      setNewPriority({ name: "", color: "#000000" });
       setEditIndex(null);
       setFormVisible(false);
     } catch (error) {
@@ -141,13 +107,7 @@ const Priority = () => {
   // Calculate task counts for each priority
   const calculateTaskCounts = () => {
     return priorities.map((priority) => {
-      const { start, end } = priority;
-      const count = tasks.filter(
-        (task) =>
-          task.priority === priority.name &&
-          task.dueDate >= start &&
-          task.dueDate <= end
-      ).length;
+      const count = tasks.filter((task) => task.priority === priority.name).length;
       return { ...priority, count };
     });
   };
@@ -170,8 +130,7 @@ const Priority = () => {
       <button className="add-priority-btn" onClick={() => setFormVisible(true)}>
         <FaPlus className="icon" /> Add Priority
       </button>
-
-      {/* Form for Adding/Editing Priority */}
+      
       {formVisible && (
         <div className="priority-form">
           <h3>{editIndex !== null ? "Edit Priority" : "Add Priority"}</h3>
@@ -182,24 +141,6 @@ const Priority = () => {
             value={newPriority.name}
             onChange={(e) =>
               setNewPriority((prev) => ({ ...prev, name: e.target.value }))
-            }
-          />
-          <input
-            type="number"
-            name="start"
-            placeholder="Start (e.g., 0)"
-            value={newPriority.start}
-            onChange={(e) =>
-              setNewPriority((prev) => ({ ...prev, start: e.target.value }))
-            }
-          />
-          <input
-            type="number"
-            name="end"
-            placeholder="End (e.g., 3)"
-            value={newPriority.end}
-            onChange={(e) =>
-              setNewPriority((prev) => ({ ...prev, end: e.target.value }))
             }
           />
           <input
@@ -224,7 +165,6 @@ const Priority = () => {
         <thead>
           <tr>
             <th>Priority Name</th>
-            <th>Days Range</th>
             <th>Task Count</th>
             <th>Action</th>
           </tr>
@@ -233,7 +173,6 @@ const Priority = () => {
           {prioritiesWithCounts.map((priority, index) => (
             <tr key={index}>
               <td>{priority.name}</td>
-              <td>{`${priority.start}-${priority.end}`}</td>
               <td>{priority.count}</td>
               <td>
                 <button
@@ -242,8 +181,6 @@ const Priority = () => {
                     setEditIndex(index);
                     setNewPriority({
                       name: priority.name,
-                      start: priority.start,
-                      end: priority.end,
                       color: priority.color,
                     });
                     setFormVisible(true);

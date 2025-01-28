@@ -119,6 +119,7 @@ const Project = () => {
   };
 
   const getPriorityBasedOnDaysRemaining = (daysRemaining) => {
+    if (daysRemaining < 0) return "Late";
     if (daysRemaining >= 0 && daysRemaining <= 2) return "Urgent";
     if (daysRemaining >= 3 && daysRemaining <= 5) return "High";
     if (daysRemaining >= 6 && daysRemaining <= 9) return "Medium";
@@ -128,11 +129,11 @@ const Project = () => {
 
   const getPriorityColor = (priorityName) => {
     const priority = priorities.find((p) => p.name === priorityName);
-    return priority ? priority.color : "#ccc";
+    return priority ? priority.color : "white";
   };
 
   const getInitials = (name) => {
-    if (!name) return "NA";
+    if (!name) return "N/A";
     const names = name.split(" ");
     const initials = names.map((n) => n[0]).join("");
     return initials.toUpperCase();
@@ -222,6 +223,7 @@ const Project = () => {
           {tasks.map((task, index) => {
             const daysRemaining = calculateDaysRemaining(task.dueDate);
             const priorityName = getPriorityBasedOnDaysRemaining(daysRemaining);
+             // eslint-disable-next-line no-unused-vars
             const priorityColor = getPriorityColor(priorityName);
 
             return (
@@ -275,7 +277,7 @@ const Project = () => {
 
                 {/* Priority */}
                 <div className="task-priority">
-                  <span className="priority-dot">{priorityColor}</span>
+                  <span className="priority-dot" style={{ backgroundColor: getPriorityColor(priorityName) }}></span>
                   <span className="priority-name">{priorityName}</span>
                 </div>
 
@@ -326,10 +328,53 @@ const Project = () => {
                 )}
 
                 {/* Task Dates */}
-                <div className="task-dates">
-                  <span>Start: {formatDate(task.startDate)}</span>
-                  <span>Due: {formatDate(task.dueDate)}</span>
-                </div>
+                {/* Task Dates */}
+<div className="task-dates">
+  <span>
+    Start:{" "}
+    {editableTask.id === task._id && editableTask.field === "startDate" ? (
+      <input
+        type="date"
+        value={task.startDate}
+        onChange={(e) =>
+          handleEditTask(task._id, "startDate", e.target.value)
+        }
+        onBlur={() => setEditableTask({ id: null, field: null })}
+        autoFocus
+      />
+    ) : (
+      <span
+        onClick={() =>
+          setEditableTask({ id: task._id, field: "startDate" })
+        }
+      >
+        {formatDate(task.startDate)}
+      </span>
+    )}
+  </span>
+  <span>
+    Due:{" "}
+    {editableTask.id === task._id && editableTask.field === "dueDate" ? (
+      <input
+        type="date"
+        value={task.dueDate}
+        onChange={(e) =>
+          handleEditTask(task._id, "dueDate", e.target.value)
+        }
+        onBlur={() => setEditableTask({ id: null, field: null })}
+        autoFocus
+      />
+    ) : (
+      <span
+        onClick={() =>
+          setEditableTask({ id: task._id, field: "dueDate" })
+        }
+      >
+        {formatDate(task.dueDate)}
+      </span>
+    )}
+  </span>
+</div>
               </div>
             );
           })}

@@ -1,14 +1,39 @@
 import React, { useState } from "react";
-import { FaFolder, FaPlusCircle } from "react-icons/fa"; 
+import { FaFolder, FaPlusCircle } from "react-icons/fa";
 import logo from "../assets/logo.png";
+import { v4 as uuidv4 } from "uuid"; // Install this package: npm install uuid
 
 const Navbar = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
-
-  const projects = ["Project 1", "Project 2", "Project 3"];
+  const [projects, setProjects] = useState([]);
+  const [activeProjectId, setActiveProjectId] = useState(null);
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
 
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
+  };
+
+  const handleCreateProjectClick = () => {
+    setIsFormVisible(true); // Show the form
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (newProjectName.trim() === "") return;
+
+    const newProject = {
+      id: uuidv4(), // Generate a unique ID
+      name: newProjectName.trim(),
+    };
+    setProjects([...projects, newProject]);
+    setActiveProjectId(newProject.id); // Set the newly created project as active
+    setNewProjectName(""); // Reset the form
+    setIsFormVisible(false); // Hide the form
+  };
+
+  const handleSelectProject = (projectId) => {
+    setActiveProjectId(projectId);
   };
 
   return (
@@ -20,15 +45,48 @@ const Navbar = () => {
       {dropdownVisible && (
         <div className="dropdown">
           <ul className="dropdown-list">
-            {projects.map((project, index) => (
-              <li key={index} className="dropdown-item">
-                {project}
+            {projects.map((project) => (
+              <li
+                key={project.id}
+                className={`dropdown-item ${
+                  activeProjectId === project.id ? "active" : ""
+                }`}
+                onClick={() => handleSelectProject(project.id)}
+              >
+                {project.name}
               </li>
             ))}
           </ul>
-          <button className="create-project-btn">
+          <button className="create-project-btn" onClick={handleCreateProjectClick}>
             <FaPlusCircle className="icon" /> Create Project
           </button>
+        </div>
+      )}
+
+      {/* Project Creation Form */}
+      {isFormVisible && (
+        <div className="project-form-modal">
+          <form className="project-form" onSubmit={handleFormSubmit}>
+            <h3>Create New Project</h3>
+            <input
+              type="text"
+              value={newProjectName}
+              onChange={(e) => setNewProjectName(e.target.value)}
+              placeholder="Enter project name"
+              required
+              className="project-name-input"
+            />
+            <button type="submit" className="submit-btn">
+              Save
+            </button>
+            <button
+              type="button"
+              className="cancel-btn"
+              onClick={() => setIsFormVisible(false)}
+            >
+              Cancel
+            </button>
+          </form>
         </div>
       )}
 
@@ -40,7 +98,9 @@ const Navbar = () => {
       </div>
 
       <div className="navbar-logo">
-        <a href="/"><img src={logo} alt="Logo" /> </a>
+        <a href="/">
+          <img src={logo} alt="Logo" />
+        </a>
       </div>
     </nav>
   );

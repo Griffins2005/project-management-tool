@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaFolder, FaPlusCircle } from "react-icons/fa";
 import logo from "../assets/logo.png";
-import { v4 as uuidv4 } from "uuid"; // Install this package: npm install uuid
+import { v4 as uuidv4 } from "uuid";
 
 const Navbar = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -15,7 +15,7 @@ const Navbar = () => {
   };
 
   const handleCreateProjectClick = () => {
-    setIsFormVisible(true); // Show the form
+    setIsFormVisible(true); 
   };
 
   const handleFormSubmit = (e) => {
@@ -23,13 +23,13 @@ const Navbar = () => {
     if (newProjectName.trim() === "") return;
 
     const newProject = {
-      id: uuidv4(), // Generate a unique ID
+      id: uuidv4(),
       name: newProjectName.trim(),
     };
     setProjects([...projects, newProject]);
-    setActiveProjectId(newProject.id); // Set the newly created project as active
-    setNewProjectName(""); // Reset the form
-    setIsFormVisible(false); // Hide the form
+    setActiveProjectId(newProject.id); 
+    setNewProjectName(""); 
+    setIsFormVisible(false);
   };
 
   const handleSelectProject = (projectId) => {

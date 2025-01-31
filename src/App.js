@@ -8,7 +8,6 @@ import "./index.css";
 import Priority from "./pages/priority";
 import ProgressTracking from "./pages/progressTracking";
 
-
 function App() {
   return (
     <Router>
@@ -16,11 +15,11 @@ function App() {
         <Navbar />
         <main>
           <Routes>
-            <Route path="/" element={<Project/>} />
-            <Route path="/team" element={<Teams/>} />
-            <Route path="/progress" element={<ProgressTracking/>} />
-            <Route path="/priority" element={<Priority/>} />
-            <Route path="/team" element={<Teams/>} />
+            <Route path="/" element={<Project />} />
+            <Route path="/team" element={<Teams />} />
+            <Route path="/progress" element={<ProgressTracking />} />
+            <Route path="/priority" element={<Priority />} />
+            <Route path="/team" element={<Teams />} />
           </Routes>
         </main>
         <Footer />

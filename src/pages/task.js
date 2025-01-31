@@ -1,10 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaPlusCircle } from "react-icons/fa";
 import axios from "axios";
 
-const Task = () => {
+const Task = ({ projectId }) => {
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState({ title: "", description: "", assignedTo: "", startDate: "", dueDate: "" });
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    assignedTo: "",
+    startDate: "",
+    dueDate: "",
+    projectId: projectId, // Initialize with the passed projectId
+  });
   const [addTaskExpanded, setAddTaskExpanded] = useState(false);
   const [priorities, setPriorities] = useState([]);
   const [statuses, setStatuses] = useState([]);
@@ -13,21 +20,27 @@ const Task = () => {
   const [statusDropdownVisible, setStatusDropdownVisible] = useState({ id: null, visible: false });
   const [assigneeDropdownVisible, setAssigneeDropdownVisible] = useState({ id: null, visible: false });
 
-  useEffect(() => {
-    fetchTasks();
-    fetchPriorities();
-    fetchStatuses();
-    fetchTeamMembers();
-  }, []);
-
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
+    if (!projectId) {
+      console.error("Project ID is missing");
+      return;
+    }
     try {
-      const response = await axios.get("http://localhost:5001/api/tasks");
+      const response = await axios.get(`http://localhost:5001/api/tasks/${projectId}`);
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
-  };
+  }, [projectId]); // Add projectId as a dependency
+
+  useEffect(() => {
+    if (projectId) {
+      fetchTasks();
+      fetchPriorities();
+      fetchStatuses();
+      fetchTeamMembers();
+    }
+  }, [projectId, fetchTasks]);
 
   const fetchPriorities = async () => {
     try {
@@ -57,10 +70,15 @@ const Task = () => {
   };
 
   const handleAddTask = async () => {
+    if (!projectId) {
+      console.error("Project ID is missing");
+      return;
+    }
     try {
-      const response = await axios.post("http://localhost:5001/api/tasks", newTask);
+      const taskWithProjectId = { ...newTask, projectId };
+      const response = await axios.post(`http://localhost:5001/api/tasks/${projectId}`, taskWithProjectId);
       setTasks([...tasks, response.data]);
-      setNewTask({ title: "", description: "", assignedTo: "", startDate: "", dueDate: "" });
+      setNewTask({ title: "", description: "", assignedTo: "", startDate: "", dueDate: "", projectId });
       setAddTaskExpanded(false);
     } catch (error) {
       console.error("Error adding task:", error);
@@ -73,7 +91,7 @@ const Task = () => {
     );
     setTasks(updatedTasks);
     axios
-      .put(`http://localhost:5001/api/tasks/${taskId}`, { [field]: value })
+      .put(`http://localhost:5001/api/tasks/${projectId}/${taskId}`, { [field]: value })
       .catch((error) => console.error("Error updating task:", error));
   };
 
@@ -83,7 +101,7 @@ const Task = () => {
     );
     setTasks(updatedTasks);
     axios
-      .put(`http://localhost:5001/api/tasks/${taskId}`, { status: newStatus })
+      .put(`http://localhost:5001/api/tasks/${projectId}/${taskId}`, { status: newStatus })
       .catch((error) => console.error("Error updating task status:", error));
     setStatusDropdownVisible({ id: null, visible: false });
   };
@@ -94,7 +112,7 @@ const Task = () => {
     );
     setTasks(updatedTasks);
     axios
-      .put(`http://localhost:5001/api/tasks/${taskId}`, { assignedTo: newAssignee })
+      .put(`http://localhost:5001/api/tasks/${projectId}/${taskId}`, { assignedTo: newAssignee })
       .catch((error) => console.error("Error updating task assignee:", error));
     setAssigneeDropdownVisible({ id: null, visible: false });
   };

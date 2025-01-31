@@ -6,16 +6,164 @@ main {
   margin-bottom: 30px;
   min-height: calc(95vh - 150px);
 }
+.project-page {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 180px;
+  background-color: #282c34;
+  color: white;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+.sidebar h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #fff;
+}
+.sidebar h2 svg {
+  font-size: 1.2rem;
+}
+.create-project-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.create-project-btn:hover {
+  background-color: #218838;
+}
+.project-form-modal {
+  margin-top: 10px;
+}
+.project-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.project-name-input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+.submit-btn,
+.cancel-btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.submit-btn {
+  background: #007bff;
+  color: white;
+}
+.cancel-btn {
+  background: #ccc;
+}
+.cancel-btn:hover {
+  background: #aaa;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar li {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #444;
+}
+.sidebar li:hover {
+  background-color: #444;
+}
+.sidebar li input {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.sidebar li button {
+  margin-left: 10px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.sidebar li button:hover {
+  background-color: #c82333;
+}
+.project-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #444;
+}
+.project-item:hover {
+  background-color: #444;
+}
+.delete-icon {
+  cursor: pointer;
+  color: #dc3545;
+}
+.delete-icon:hover {
+  color: #c82333;
+}
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
 .navbar {
   margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #282c34;
+  background-color: #40BABD;
   color: white;
   padding: 10px 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   position: relative;
+}
+.navbar h1{
+  font-size: 30px;
+  font-weight: 5rem;
+}
+.project-item.selected {
+  background-color: #10c6de;
+  font-weight: bold;
+}
+.tick-icon {
+  margin-right: 8px;
+  color: #4caf50;
+}
+.project-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  cursor: pointer;
+}
+.project-item:hover {
+  background-color: #f5f5f5;
 }
 .project-icon {
   display: flex;

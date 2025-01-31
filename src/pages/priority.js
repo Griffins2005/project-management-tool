@@ -12,7 +12,7 @@ const Priority = () => {
   const [editIndex, setEditIndex] = useState(null);
   const [newPriority, setNewPriority] = useState({
     name: "",
-    color: "#000000", // Default color
+    color: "#000000",
   });
 
   const chartRef = useRef(null);
@@ -39,6 +39,7 @@ const Priority = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
+      console.log("Fetched tasks:", data); 
       setTasks(data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -100,16 +101,18 @@ const Priority = () => {
   };
 
   useEffect(() => {
+    console.log("Fetching data..."); 
     fetchPriorities();
     fetchTasks();
   }, []);
 
-  // Calculate task counts for each priority
   const calculateTaskCounts = () => {
-    return priorities.map((priority) => {
+    const counts = priorities.map((priority) => {
       const count = tasks.filter((task) => task.priority === priority.name).length;
       return { ...priority, count };
     });
+    console.log("Priorities with counts:", counts);
+    return counts;
   };
 
   const prioritiesWithCounts = calculateTaskCounts();
@@ -124,13 +127,16 @@ const Priority = () => {
     ],
   };
 
+  console.log("Pie chart data:", pieData);
+
   return (
     <div className="priority-page">
       <h1>Priorities</h1>
       <button className="add-priority-btn" onClick={() => setFormVisible(true)}>
         <FaPlus className="icon" /> Add Priority
       </button>
-      
+
+      {/* Priority Form */}
       {formVisible && (
         <div className="priority-form">
           <h3>{editIndex !== null ? "Edit Priority" : "Add Priority"}</h3>

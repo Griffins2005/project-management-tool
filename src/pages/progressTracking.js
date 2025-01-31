@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { Pie } from "react-chartjs-2";
+import {Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ProgressTracking = () => {
   const [statuses, setStatuses] = useState([]);
@@ -12,29 +16,36 @@ const ProgressTracking = () => {
 
   const API_URL = "http://localhost:5001/api";
 
-  // Fetch statuses and task counts from the backend
   const fetchData = async () => {
     try {
-      const [statusesResponse, taskCountsResponse] = await Promise.all([
+      const [statusesResponse, tasksResponse] = await Promise.all([
         fetch(`${API_URL}/statuses`),
         fetch(`${API_URL}/tasks`),
       ]);
 
-      if (!statusesResponse.ok || !taskCountsResponse.ok) {
+      if (!statusesResponse.ok || !tasksResponse.ok) {
         throw new Error("Failed to fetch data");
       }
 
       const statusesData = await statusesResponse.json();
-      const taskCountsData = await taskCountsResponse.json();
+      const tasksData = await tasksResponse.json();
+
+      const counts = {};
+      tasksData.forEach((task) => {
+        if (counts[task.status]) {
+          counts[task.status]++;
+        } else {
+          counts[task.status] = 1;
+        }
+      });
 
       setStatuses(statusesData);
-      setTaskCounts(taskCountsData);
+      setTaskCounts(counts);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
-  // Add or update a status
   const saveStatus = async () => {
     try {
       const url = editStatus
@@ -105,9 +116,51 @@ const ProgressTracking = () => {
     setFormVisible(true);
   };
 
+  // Fetch data on component mount
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Prepare data for the Pie Chart
+  const chartData = {
+    labels: statuses.map((status) => status.name),
+    datasets: [
+      {
+        label: "Task Count",
+        data: statuses.map((status) => taskCounts[status.name] || 0),
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.6)",
+          "rgba(54, 162, 235, 0.6)",
+          "rgba(255, 206, 86, 0.6)",
+          "rgba(75, 192, 192, 0.6)",
+          "rgba(153, 102, 255, 0.6)",
+          "rgba(255, 159, 64, 0.6)",
+        ],
+        borderColor: [
+          "rgba(255, 99, 132, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(255, 206, 86, 1)",
+          "rgba(75, 192, 192, 1)",
+          "rgba(153, 102, 255, 1)",
+          "rgba(255, 159, 64, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Task Distribution by Status",
+      },
+    },
+  };
 
   return (
     <div className="progress-tracking">
@@ -175,6 +228,11 @@ const ProgressTracking = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Pie Chart */}
+      <div className="chart-container" style={{ width: "400px", margin: "20px auto" }}>
+        <Pie data={chartData} options={chartOptions} />
       </div>
     </div>
   );

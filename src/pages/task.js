@@ -19,6 +19,7 @@ const Task = ({ projectId }) => {
   const [editableTask, setEditableTask] = useState({ id: null, field: null });
   const [statusDropdownVisible, setStatusDropdownVisible] = useState({ id: null, visible: false });
   const [assigneeDropdownVisible, setAssigneeDropdownVisible] = useState({ id: null, visible: false });
+  const [errorMessage, setErrorMessage] = useState("");
 
   const fetchTasks = useCallback(async () => {
     if (!projectId) {
@@ -31,7 +32,7 @@ const Task = ({ projectId }) => {
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
-  }, [projectId]); // Add projectId as a dependency
+  }, [projectId]);
 
   useEffect(() => {
     if (projectId) {
@@ -74,12 +75,19 @@ const Task = ({ projectId }) => {
       console.error("Project ID is missing");
       return;
     }
+
+    if (!newTask.title || !newTask.description || !newTask.assignedTo || !newTask.startDate || !newTask.dueDate) {
+      setErrorMessage("All fields are required.");
+      return;
+    }
+
     try {
       const taskWithProjectId = { ...newTask, projectId };
       const response = await axios.post(`http://localhost:5001/api/tasks/${projectId}`, taskWithProjectId);
       setTasks([...tasks, response.data]);
       setNewTask({ title: "", description: "", assignedTo: "", startDate: "", dueDate: "", projectId });
       setAddTaskExpanded(false);
+      setErrorMessage("");
     } catch (error) {
       console.error("Error adding task:", error);
     }
@@ -118,13 +126,16 @@ const Task = ({ projectId }) => {
   };
 
   const calculateDaysRemaining = (dueDate) => {
+    if (!dueDate) return null; // Handle missing due date
     const today = new Date();
     const due = new Date(dueDate);
     const timeDiff = due - today;
     return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
   };
-
-  const getPriorityBasedOnDaysRemaining = (daysRemaining) => {
+  
+  const getPriorityBasedOnDaysRemaining = (task) => {
+    const daysRemaining = calculateDaysRemaining(task.dueDate);
+    if (daysRemaining === null) return "No Due Date";
     if (daysRemaining < 0) return "Late";
     if (daysRemaining >= 0 && daysRemaining <= 2) return "Urgent";
     if (daysRemaining >= 3 && daysRemaining <= 5) return "High";
@@ -132,10 +143,10 @@ const Task = ({ projectId }) => {
     if (daysRemaining >= 10 && daysRemaining <= 20) return "Low";
     return "Very Low";
   };
-
+  
   const getPriorityColor = (priorityName) => {
     const priority = priorities.find((p) => p.name === priorityName);
-    return priority ? priority.color : "white";
+    return priority ? priority.color : "#CCCCCC"; 
   };
 
   const getInitials = (name) => {
@@ -154,8 +165,7 @@ const Task = ({ projectId }) => {
     <div className="task-list">
       <div className="task-list-grid">
         {tasks.map((task, index) => {
-          const daysRemaining = calculateDaysRemaining(task.dueDate);
-          const priorityName = getPriorityBasedOnDaysRemaining(daysRemaining);
+          const priorityName = getPriorityBasedOnDaysRemaining(task);
           const priorityColor = getPriorityColor(priorityName);
 
           return (
@@ -224,7 +234,7 @@ const Task = ({ projectId }) => {
                     })
                   }
                 >
-                  {task.status || "Not Started"}
+                  {task.status}
                 </div>
                 {statusDropdownVisible.id === task._id && statusDropdownVisible.visible && (
                   <div className="status-dropdown-menu">
@@ -320,6 +330,7 @@ const Task = ({ projectId }) => {
           </button>
           {addTaskExpanded && (
             <div className="add-task-form">
+              {errorMessage && <div className="error-message">{errorMessage}</div>}
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -342,6 +353,7 @@ const Task = ({ projectId }) => {
                 <select
                   value={newTask.assignedTo}
                   onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value })}
+                  required
                 >
                   <option value="">Select Assignee</option>
                   {teamMembers.map((member, index) => (
@@ -355,12 +367,14 @@ const Task = ({ projectId }) => {
                   placeholder="Start Date"
                   value={newTask.startDate}
                   onChange={(e) => setNewTask({ ...newTask, startDate: e.target.value })}
+                  required
                 />
                 <input
                   type="date"
                   placeholder="Due Date"
                   value={newTask.dueDate}
                   onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                  required
                 />
                 <button type="submit">Add Task</button>
               </form>

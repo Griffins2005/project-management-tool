@@ -16,7 +16,6 @@ const Project = () => {
   const [newProjectName, setNewProjectName] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState(null);
 
-  // Filter states
   const [selectedDueDateFilter, setSelectedDueDateFilter] = useState(null);
   const [selectedPriorityFilter, setSelectedPriorityFilter] = useState(null);
   const [selectedProgressFilter, setSelectedProgressFilter] = useState(null);
@@ -24,7 +23,7 @@ const Project = () => {
 
   const fetchStatuses = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/statuses");
+      const response = await axios.get("https://project-management-backend-two.vercel.app/api/statuses");
       setStatuses(response.data);
     } catch (error) {
       console.error("Error fetching statuses:", error);
@@ -33,7 +32,7 @@ const Project = () => {
 
   const fetchTeamMembers = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/team/members");
+      const response = await axios.get("https://project-management-backend-two.vercel.app/api/team/members");
       setTeamMembers(response.data);
     } catch (error) {
       console.error("Error fetching team members:", error);
@@ -42,7 +41,7 @@ const Project = () => {
 
   const fetchPriorities = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/priorities");
+      const response = await axios.get("https://project-management-backend-two.vercel.app/api/priorities");
       setPriorities(response.data);
     } catch (error) {
       console.error("Error fetching priorities:", error);
@@ -51,12 +50,12 @@ const Project = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/projects");
+      const response = await axios.get("https://project-management-backend-two.vercel.app/api/projects");
       console.log("Projects fetched:", response.data);
       setProjects(response.data);
 
       if (response.data.length > 0) {
-        setSelectedProjectId(response.data[0].id); // Set the first project as the default
+        setSelectedProjectId(response.data[0].id);
         setProjectName(response.data[0].name);
       }
     } catch (error) {
@@ -68,7 +67,7 @@ const Project = () => {
   const createProject = async () => {
     if (!newProjectName.trim()) return;
     try {
-      const response = await axios.post("http://localhost:5001/api/projects", { name: newProjectName });
+      const response = await axios.post("https://project-management-backend-two.vercel.app/api/projects", { name: newProjectName });
       setProjects([...projects, response.data]);
       setNewProjectName("");
       setShowCreateProjectForm(false);
@@ -84,7 +83,7 @@ const Project = () => {
 
   const updateProject = async (id, newName) => {
     try {
-      await axios.put(`http://localhost:5001/api/projects/${id}`, { name: newName });
+      await axios.put(`https://project-management-backend-two.vercel.app/api/projects/${id}`, { name: newName });
       const updatedProjects = projects.map((project) =>
         project.id === id ? { ...project, name: newName } : project
       );
@@ -101,8 +100,8 @@ const Project = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5001/api/projects/${id}`);
-      await axios.delete(`http://localhost:5001/api/tasks?projectId=${id}`);
+      await axios.delete(`https://project-management-backend-two.vercel.app/api/projects/${id}`);
+      await axios.delete(`https://project-management-backend-two.vercel.app/api/tasks?projectId=${id}`);
       setProjects(projects.filter((project) => project.id !== id));
 
       if (selectedProjectId === id && projects.length > 0) {
@@ -128,14 +127,12 @@ const Project = () => {
 
   const toggleFilterDropdown = () => {
     if (filterDropdownVisible) {
-      // If the dropdown is already visible, clear filters and hide the dropdown
       setSelectedDueDateFilter(null);
       setSelectedPriorityFilter(null);
       setSelectedProgressFilter(null);
       setSelectedAssignmentFilter(null);
       setFilterDropdownVisible(false);
     } else {
-      // If the dropdown is not visible, show it
       setFilterDropdownVisible(true);
     }
     setSideDropdown("");
@@ -156,7 +153,6 @@ const Project = () => {
     }
   };
 
-  // Filter handlers
   const handleDueDateFilter = (filter) => {
     setSelectedDueDateFilter(filter);
     setSideDropdown("");

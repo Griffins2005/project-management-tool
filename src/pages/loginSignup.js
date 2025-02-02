@@ -11,7 +11,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.open("http://localhost:5001/api/auth/google", "_self");
+    window.open("https://project-management-backend-two.vercel.app/api/auth/google", "_self");
     handleSuccessLogin();
   };
 

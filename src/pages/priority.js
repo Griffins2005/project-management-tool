@@ -17,7 +17,7 @@ const Priority = () => {
 
   const chartRef = useRef(null);
 
-  const API_URL = "http://localhost:5001/api";
+  const API_URL = "https://project-management-backend-two.vercel.app/api";
 
   const fetchPriorities = async () => {
     try {

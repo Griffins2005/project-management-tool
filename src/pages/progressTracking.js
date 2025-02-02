@@ -14,7 +14,7 @@ const ProgressTracking = () => {
     name: "",
   });
 
-  const API_URL = "http://localhost:5001/api";
+  const API_URL = "https://project-management-backend-two.vercel.app/api";
 
   const fetchData = async () => {
     try {
@@ -79,7 +79,6 @@ const ProgressTracking = () => {
     }
   };
 
-  // Delete a status
   const deleteStatus = async (id) => {
     try {
       await fetch(`${API_URL}/statuses/${id}`, { method: "DELETE" });
@@ -91,14 +90,12 @@ const ProgressTracking = () => {
     }
   };
 
-  // Reset the form
   const resetForm = () => {
     setNewStatus({ name: "" });
     setEditStatus(null);
     setFormVisible(false);
   };
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewStatus((prev) => ({
@@ -107,7 +104,6 @@ const ProgressTracking = () => {
     }));
   };
 
-  // Handle edit button click
   const handleEdit = (status) => {
     setNewStatus({
       name: status.name,
@@ -116,12 +112,10 @@ const ProgressTracking = () => {
     setFormVisible(true);
   };
 
-  // Fetch data on component mount
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Prepare data for the Pie Chart
   const chartData = {
     labels: statuses.map((status) => status.name),
     datasets: [

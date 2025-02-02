@@ -4,7 +4,7 @@ import { FaUserPlus, FaSave, FaEnvelope, FaUserCircle, FaTrash, FaEdit } from "r
 const Teams = () => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [formVisible, setFormVisible] = useState(false);
-  const [editMemberId, setEditMemberId] = useState(null); // Track the member being edited
+  const [editMemberId, setEditMemberId] = useState(null);
   const [newMember, setNewMember] = useState({
     name: "",
     skills: "",
@@ -12,16 +12,15 @@ const Teams = () => {
     experience: "",
     position: "",
   });
-  const [message, setMessage] = useState(""); // Success/error message
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     fetchTeamMembers();
   }, []);
 
-  // Fetch team members from the backend
   const fetchTeamMembers = async () => {
     try {
-      const response = await fetch("http://localhost:5001/api/team/members");
+      const response = await fetch("https://project-management-backend-two.vercel.app/api/team/members");
       const data = await response.json();
       setTeamMembers(data);
     } catch (error) {
@@ -47,8 +46,8 @@ const Teams = () => {
     if (name && skills && email && experience && position) {
       try {
         const url = editMemberId
-          ? `http://localhost:5001/api/team/members/${editMemberId}` 
-          : "http://localhost:5001/api/team/members"; 
+          ? `https://project-management-backend-two.vercel.app/api/team/members/${editMemberId}` 
+          : "https://project-management-backend-two.vercel.app/api/team/members"; 
   
         const method = editMemberId ? "PUT" : "POST";
   
@@ -81,7 +80,7 @@ const Teams = () => {
  
   const deleteMember = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/team/members/${id}`, {
+      const response = await fetch(`https://project-management-backend-two.vercel.app/api/team/members/${id}`, {
         method: "DELETE",
       });
 
@@ -97,11 +96,10 @@ const Teams = () => {
     }
   };
 
-  // Edit a team member
   const editMember = (member) => {
-    setNewMember(member); // Populate form with member data
-    setEditMemberId(member._id); // Set the member ID being edited
-    setFormVisible(true); // Show the form
+    setNewMember(member); 
+    setEditMemberId(member._id); 
+    setFormVisible(true); 
   };
 
   return (

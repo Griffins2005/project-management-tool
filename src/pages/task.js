@@ -2,7 +2,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import { FaPlusCircle } from "react-icons/fa";
 import axios from "axios";
 
-const Task = ({ projectId }) => {
+const Task = ({
+  projectId,
+  projectName,
+  dueDateFilter,
+  priorityFilter,
+  progressFilter,
+  assignmentFilter,
+}) => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({
     title: "",
@@ -10,7 +17,7 @@ const Task = ({ projectId }) => {
     assignedTo: "",
     startDate: "",
     dueDate: "",
-    projectId: projectId, // Initialize with the passed projectId
+    projectId: projectId,
   });
   const [addTaskExpanded, setAddTaskExpanded] = useState(false);
   const [priorities, setPriorities] = useState([]);
@@ -20,6 +27,68 @@ const Task = ({ projectId }) => {
   const [statusDropdownVisible, setStatusDropdownVisible] = useState({ id: null, visible: false });
   const [assigneeDropdownVisible, setAssigneeDropdownVisible] = useState({ id: null, visible: false });
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Helper functions for filtering tasks
+  const calculateDaysRemaining = (dueDate) => {
+    if (!dueDate) return null;
+    const today = new Date();
+    const due = new Date(dueDate);
+    const timeDiff = due - today;
+    return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  };
+
+  const getPriorityBasedOnDaysRemaining = (task) => {
+    const daysRemaining = calculateDaysRemaining(task.dueDate);
+    if (daysRemaining === null) return "No Due Date";
+    if (daysRemaining < 0) return "Late";
+    if (daysRemaining >= 0 && daysRemaining <= 2) return "Urgent";
+    if (daysRemaining >= 3 && daysRemaining <= 5) return "High";
+    if (daysRemaining >= 6 && daysRemaining <= 9) return "Medium";
+    if (daysRemaining >= 10 && daysRemaining <= 20) return "Low";
+    return "Very Low";
+  };
+
+  const isTaskDueDateMatch = (task, filter) => {
+    const daysRemaining = calculateDaysRemaining(task.dueDate);
+    switch (filter) {
+      case "Late":
+        return daysRemaining < 0;
+      case "Today":
+        return daysRemaining === 0;
+      case "Tomorrow":
+        return daysRemaining === 1;
+      case "This Week":
+        return daysRemaining >= 0 && daysRemaining <= 7;
+      case "Next Week":
+        return daysRemaining > 7 && daysRemaining <= 14;
+      case "Future":
+        return daysRemaining > 14;
+      default:
+        return true;
+    }
+  };
+
+  const isTaskPriorityMatch = (task, filter) => {
+    const priorityName = getPriorityBasedOnDaysRemaining(task);
+    return priorityName === filter;
+  };
+
+  const isTaskProgressMatch = (task, filter) => {
+    return task.status === filter;
+  };
+
+  const isTaskAssignmentMatch = (task, filter) => {
+    return task.assignedTo === filter;
+  };
+
+  // Filter tasks based on the filter criteria
+  const filteredTasks = tasks.filter((task) => {
+    if (dueDateFilter && !isTaskDueDateMatch(task, dueDateFilter)) return false;
+    if (priorityFilter && !isTaskPriorityMatch(task, priorityFilter)) return false;
+    if (progressFilter && !isTaskProgressMatch(task, progressFilter)) return false;
+    if (assignmentFilter && !isTaskAssignmentMatch(task, assignmentFilter)) return false;
+    return true;
+  });
 
   const fetchTasks = useCallback(async () => {
     if (!projectId) {
@@ -82,8 +151,17 @@ const Task = ({ projectId }) => {
     }
 
     try {
-      const taskWithProjectId = { ...newTask, projectId };
-      const response = await axios.post(`http://localhost:5001/api/tasks/${projectId}`, taskWithProjectId);
+      // Calculate priority based on due date
+      const priorityName = getPriorityBasedOnDaysRemaining(newTask);
+      const priority = priorities.find((p) => p.name === priorityName);
+
+      const taskWithProjectIdAndPriority = {
+        ...newTask,
+        projectId,
+        priority: priority ? priority._id : null, // Assuming priority is stored as an ID in the database
+      };
+
+      const response = await axios.post(`http://localhost:5001/api/tasks/${projectId}`, taskWithProjectIdAndPriority);
       setTasks([...tasks, response.data]);
       setNewTask({ title: "", description: "", assignedTo: "", startDate: "", dueDate: "", projectId });
       setAddTaskExpanded(false);
@@ -97,9 +175,21 @@ const Task = ({ projectId }) => {
     const updatedTasks = tasks.map((task) =>
       task._id === taskId ? { ...task, [field]: value } : task
     );
+
+    // Recalculate priority if the due date is being updated
+    if (field === "dueDate") {
+      const taskToUpdate = updatedTasks.find((task) => task._id === taskId);
+      const priorityName = getPriorityBasedOnDaysRemaining(taskToUpdate);
+      const priority = priorities.find((p) => p.name === priorityName);
+
+      taskToUpdate.priority = priority ? priority._id : null;
+    }
+
     setTasks(updatedTasks);
+
+    const taskToUpdate = updatedTasks.find((task) => task._id === taskId);
     axios
-      .put(`http://localhost:5001/api/tasks/${projectId}/${taskId}`, { [field]: value })
+      .put(`http://localhost:5001/api/tasks/${projectId}/${taskId}`, taskToUpdate)
       .catch((error) => console.error("Error updating task:", error));
   };
 
@@ -125,28 +215,9 @@ const Task = ({ projectId }) => {
     setAssigneeDropdownVisible({ id: null, visible: false });
   };
 
-  const calculateDaysRemaining = (dueDate) => {
-    if (!dueDate) return null; // Handle missing due date
-    const today = new Date();
-    const due = new Date(dueDate);
-    const timeDiff = due - today;
-    return Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-  };
-  
-  const getPriorityBasedOnDaysRemaining = (task) => {
-    const daysRemaining = calculateDaysRemaining(task.dueDate);
-    if (daysRemaining === null) return "No Due Date";
-    if (daysRemaining < 0) return "Late";
-    if (daysRemaining >= 0 && daysRemaining <= 2) return "Urgent";
-    if (daysRemaining >= 3 && daysRemaining <= 5) return "High";
-    if (daysRemaining >= 6 && daysRemaining <= 9) return "Medium";
-    if (daysRemaining >= 10 && daysRemaining <= 20) return "Low";
-    return "Very Low";
-  };
-  
   const getPriorityColor = (priorityName) => {
     const priority = priorities.find((p) => p.name === priorityName);
-    return priority ? priority.color : "#CCCCCC"; 
+    return priority ? priority.color : "#CCCCCC";
   };
 
   const getInitials = (name) => {
@@ -164,7 +235,7 @@ const Task = ({ projectId }) => {
   return (
     <div className="task-list">
       <div className="task-list-grid">
-        {tasks.map((task, index) => {
+        {filteredTasks.map((task, index) => {
           const priorityName = getPriorityBasedOnDaysRemaining(task);
           const priorityColor = getPriorityColor(priorityName);
 
@@ -187,7 +258,6 @@ const Task = ({ projectId }) => {
                     {task.title}
                   </h3>
                 )}
-                {/* Assignee with Initials and Dropdown */}
                 <div className="task-assignee">
                   <div
                     className="assignee-initials"
@@ -217,13 +287,11 @@ const Task = ({ projectId }) => {
                 </div>
               </div>
 
-              {/* Priority */}
               <div className="task-priority">
                 <span className="priority-dot" style={{ backgroundColor: priorityColor }}></span>
                 <span className="priority-name">{priorityName}</span>
               </div>
 
-              {/* Task Status */}
               <div className="task-status">
                 <div
                   className="status-dropdown"
@@ -252,7 +320,6 @@ const Task = ({ projectId }) => {
                 )}
               </div>
 
-              {/* Editable Task Description */}
               {editableTask.id === task._id && editableTask.field === "description" ? (
                 <textarea
                   value={task.description}
@@ -269,7 +336,6 @@ const Task = ({ projectId }) => {
                 </p>
               )}
 
-              {/* Task Dates */}
               <div className="task-dates">
                 <span>
                   Start:{" "}
@@ -320,7 +386,6 @@ const Task = ({ projectId }) => {
           );
         })}
 
-        {/* Add Card Button */}
         <div className={`task-card add-task-card ${addTaskExpanded ? "expanded" : ""}`}>
           <button
             className="add-task-btn"

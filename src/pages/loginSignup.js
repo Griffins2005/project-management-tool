@@ -1,84 +1,33 @@
-import React, { useState } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom"; 
+import google from "../assets/google.png"
+import logo from "../assets/logo.png"
 
-function LoginSignup({ onLogin, onSignup, onSocialAuth }) {
-  const [isLogin, setIsLogin] = useState(true); // Toggle between Login and Signup
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const Login = () => {
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (email && password) {
-      if (isLogin) {
-        onLogin({ email, password });
-      } else if (name) {
-        onSignup({ name, email, password });
-      } else {
-        alert("Please fill in all fields.");
-      }
-    } else {
-      alert("Please fill in all fields.");
-    }
+  const handleSuccessLogin = () => {
+    navigate("/project");
   };
 
-  const handleSocialAuth = (provider) => {
-    // Call the social auth handler with provider name
-    onSocialAuth(provider);
+  const handleGoogleLogin = () => {
+    window.open("http://localhost:5001/api/auth/google", "_self");
+    handleSuccessLogin();
   };
 
   return (
-    <div className="login-signup">
-      <h2>{isLogin ? "Login" : "Signup"}</h2>
-      <form onSubmit={handleSubmit}>
-        {!isLogin && (
-          <div>
-            <label htmlFor="name">Name:</label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required={!isLogin}
-            />
-          </div>
-        )}
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">{isLogin ? "Login" : "Signup"}</button>
-      </form>
-
-      <div className="social-auth">
-        <p>Or sign up using:</p>
-        <button onClick={() => handleSocialAuth("Google")}>Sign up with Google</button>
-        <button onClick={() => handleSocialAuth("Apple")}>Sign up with Apple</button>
-      </div>
-
-      <p>
-        {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-        <button onClick={() => setIsLogin(!isLogin)}>
-          {isLogin ? "Signup" : "Login"}
+    <div className="login-container">
+      <div className="login-content">
+        <h1>Welcome to Project Management Tool</h1>
+        <img src={logo} alt="logo" className="login-image" />
+        <p className="login-description">Sign in with Google to continue</p>
+        <button onClick={handleGoogleLogin} className="google-login-btn">
+          <img src={google} alt="Google Logo" className="google-logo" />
+          Sign in with Google
         </button>
-      </p>
+      </div>
     </div>
   );
-}
+};
 
-export default LoginSignup;
+export default Login;

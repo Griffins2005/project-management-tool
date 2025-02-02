@@ -14,7 +14,13 @@ const Project = () => {
   const [projects, setProjects] = useState([]);
   const [showCreateProjectForm, setShowCreateProjectForm] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
-  const [selectedProjectId, setSelectedProjectId] = useState(null); // Track selected project
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
+
+  // Filter states
+  const [selectedDueDateFilter, setSelectedDueDateFilter] = useState(null);
+  const [selectedPriorityFilter, setSelectedPriorityFilter] = useState(null);
+  const [selectedProgressFilter, setSelectedProgressFilter] = useState(null);
+  const [selectedAssignmentFilter, setSelectedAssignmentFilter] = useState(null);
 
   const fetchStatuses = async () => {
     try {
@@ -121,7 +127,17 @@ const Project = () => {
   }, []);
 
   const toggleFilterDropdown = () => {
-    setFilterDropdownVisible(!filterDropdownVisible);
+    if (filterDropdownVisible) {
+      // If the dropdown is already visible, clear filters and hide the dropdown
+      setSelectedDueDateFilter(null);
+      setSelectedPriorityFilter(null);
+      setSelectedProgressFilter(null);
+      setSelectedAssignmentFilter(null);
+      setFilterDropdownVisible(false);
+    } else {
+      // If the dropdown is not visible, show it
+      setFilterDropdownVisible(true);
+    }
     setSideDropdown("");
   };
 
@@ -138,6 +154,27 @@ const Project = () => {
     if (selectedProjectId) {
       await updateProject(selectedProjectId, projectName);
     }
+  };
+
+  // Filter handlers
+  const handleDueDateFilter = (filter) => {
+    setSelectedDueDateFilter(filter);
+    setSideDropdown("");
+  };
+
+  const handlePriorityFilter = (priority) => {
+    setSelectedPriorityFilter(priority);
+    setSideDropdown("");
+  };
+
+  const handleProgressFilter = (status) => {
+    setSelectedProgressFilter(status);
+    setSideDropdown("");
+  };
+
+  const handleAssignmentFilter = (member) => {
+    setSelectedAssignmentFilter(member);
+    setSideDropdown("");
   };
 
   return (
@@ -200,7 +237,7 @@ const Project = () => {
           <div className="navbar-buttons">
             <div className="filters">
               <button className="filter-btn" onClick={toggleFilterDropdown}>
-                <FaFilter className="icon" /> Filters
+                <FaFilter className="icon" /> {filterDropdownVisible ? "Clear Filters" : "Filters"}
               </button>
               {filterDropdownVisible && (
                 <div className="filter-dropdown">
@@ -221,12 +258,12 @@ const Project = () => {
             <div className="side-dropdown">
               <h3>Due Date</h3>
               <ul>
-                <li>Late</li>
-                <li>Today</li>
-                <li>Tomorrow</li>
-                <li>This Week</li>
-                <li>Next Week</li>
-                <li>Future</li>
+                <li onClick={() => handleDueDateFilter("Late")}>Late</li>
+                <li onClick={() => handleDueDateFilter("Today")}>Today</li>
+                <li onClick={() => handleDueDateFilter("Tomorrow")}>Tomorrow</li>
+                <li onClick={() => handleDueDateFilter("This Week")}>This Week</li>
+                <li onClick={() => handleDueDateFilter("Next Week")}>Next Week</li>
+                <li onClick={() => handleDueDateFilter("Future")}>Future</li>
               </ul>
             </div>
           )}
@@ -235,7 +272,7 @@ const Project = () => {
               <h3>Priority</h3>
               <ul>
                 {priorities.map((priority, index) => (
-                  <li key={index}>
+                  <li key={index} onClick={() => handlePriorityFilter(priority.name)}>
                     <span
                       className="priority-dot"
                       style={{ backgroundColor: priority.color }}
@@ -251,7 +288,9 @@ const Project = () => {
               <h3>Progress</h3>
               <ul>
                 {statuses.map((status, index) => (
-                  <li key={index}>{status.name}</li>
+                  <li key={index} onClick={() => handleProgressFilter(status.name)}>
+                    {status.name}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -261,14 +300,23 @@ const Project = () => {
               <h3>Assignment</h3>
               <ul>
                 {teamMembers.map((member, index) => (
-                  <li key={index}>{member.name}</li>
+                  <li key={index} onClick={() => handleAssignmentFilter(member.name)}>
+                    {member.name}
+                  </li>
                 ))}
               </ul>
             </div>
           )}
         </div>
         {selectedProjectId && (
-          <Task projectId={selectedProjectId} projectName={projectName} />
+          <Task
+            projectId={selectedProjectId}
+            projectName={projectName}
+            dueDateFilter={selectedDueDateFilter}
+            priorityFilter={selectedPriorityFilter}
+            progressFilter={selectedProgressFilter}
+            assignmentFilter={selectedAssignmentFilter}
+          />
         )}
       </div>
     </div>

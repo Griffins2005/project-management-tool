@@ -20,7 +20,7 @@ const Teams = () => {
 
   const fetchTeamMembers = async () => {
     try {
-      const response = await fetch("https://project-management-backend-two.vercel.app/api/team/members");
+      const response = await fetch("https://project-management-backend-vrup.onrender.com/api/team/members");
       const data = await response.json();
       setTeamMembers(data);
     } catch (error) {
@@ -46,8 +46,8 @@ const Teams = () => {
     if (name && skills && email && experience && position) {
       try {
         const url = editMemberId
-          ? `https://project-management-backend-two.vercel.app/api/team/members/${editMemberId}` 
-          : "https://project-management-backend-two.vercel.app/api/team/members"; 
+          ? `https://project-management-backend-vrup.onrender.com/api/team/members/${editMemberId}` 
+          : "https://project-management-backend-vrup.onrender.com/api/team/members"; 
   
         const method = editMemberId ? "PUT" : "POST";
   
@@ -80,7 +80,7 @@ const Teams = () => {
  
   const deleteMember = async (id) => {
     try {
-      const response = await fetch(`https://project-management-backend-two.vercel.app/api/team/members/${id}`, {
+      const response = await fetch(`https://project-management-backend-vrup.onrender.com/api/team/members/${id}`, {
         method: "DELETE",
       });
 

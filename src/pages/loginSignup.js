@@ -1,18 +1,10 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; 
 import google from "../assets/google.png"
 import logo from "../assets/logo.png"
 
 const Login = () => {
-  const navigate = useNavigate();
-
-  const handleSuccessLogin = () => {
-    navigate("/project");
-  };
-
   const handleGoogleLogin = () => {
     window.open("https://project-management-backend-app.onrender.com/api/auth/google", "_self");
-    handleSuccessLogin();
   };
 
   return (

@@ -14,7 +14,7 @@ const ProgressTracking = () => {
     name: "",
   });
 
-  const API_URL = "https://project-management-backend-two.vercel.app/api";
+  const API_URL = "https://project-management-backend-vrup.onrender.com";
 
   const fetchData = async () => {
     try {

@@ -14,7 +14,7 @@ const ProgressTracking = () => {
     name: "",
   });
 
-  const API_URL = "https://project-management-backend-vrup.onrender.com";
+  const API_URL = "https://project-management-backend-app.onrender.com";
 
   const fetchData = async () => {
     try {

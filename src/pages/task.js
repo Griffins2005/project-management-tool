@@ -94,7 +94,7 @@ const Task = ({
       return;
     }
     try {
-      const response = await axios.get(`https://project-management-backend-vrup.onrender.com/api/tasks/${projectId}`);
+      const response = await axios.get(`https://project-management-backend-app.onrender.com/api/tasks/${projectId}`);
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -112,7 +112,7 @@ const Task = ({
 
   const fetchPriorities = async () => {
     try {
-      const response = await axios.get("https://project-management-backend-vrup.onrender.com/api/priorities");
+      const response = await axios.get("https://project-management-backend-app.onrender.com/api/priorities");
       setPriorities(response.data);
     } catch (error) {
       console.error("Error fetching priorities:", error);
@@ -121,7 +121,7 @@ const Task = ({
 
   const fetchStatuses = async () => {
     try {
-      const response = await axios.get("https://project-management-backend-vrup.onrender.com/api/statuses");
+      const response = await axios.get("https://project-management-backend-app.onrender.com/api/statuses");
       setStatuses(response.data);
     } catch (error) {
       console.error("Error fetching statuses:", error);
@@ -130,7 +130,7 @@ const Task = ({
 
   const fetchTeamMembers = async () => {
     try {
-      const response = await axios.get("https://project-management-backend-vrup.onrender.com/api/team/members");
+      const response = await axios.get("https://project-management-backend-app.onrender.com/api/team/members");
       setTeamMembers(response.data);
     } catch (error) {
       console.error("Error fetching team members:", error);
@@ -158,7 +158,7 @@ const Task = ({
         priority: priority ? priority._id : null, 
       };
 
-      const response = await axios.post(`https://project-management-backend-vrup.onrender.com/api/tasks/${projectId}`, taskWithProjectIdAndPriority);
+      const response = await axios.post(`https://project-management-backend-app.onrender.com/api/tasks/${projectId}`, taskWithProjectIdAndPriority);
       setTasks([...tasks, response.data]);
       setNewTask({ title: "", description: "", assignedTo: "", startDate: "", dueDate: "", projectId });
       setAddTaskExpanded(false);
@@ -185,7 +185,7 @@ const Task = ({
 
     const taskToUpdate = updatedTasks.find((task) => task._id === taskId);
     axios
-      .put(`https://project-management-backend-vrup.onrender.com/api/tasks/${projectId}/${taskId}`, taskToUpdate)
+      .put(`https://project-management-backend-app.onrender.com/api/tasks/${projectId}/${taskId}`, taskToUpdate)
       .catch((error) => console.error("Error updating task:", error));
   };
 
@@ -195,7 +195,7 @@ const Task = ({
     );
     setTasks(updatedTasks);
     axios
-      .put(`https://project-management-backend-vrup.onrender.com/api/tasks/${projectId}/${taskId}`, { status: newStatus })
+      .put(`https://project-management-backend-app.onrender.com/api/tasks/${projectId}/${taskId}`, { status: newStatus })
       .catch((error) => console.error("Error updating task status:", error));
     setStatusDropdownVisible({ id: null, visible: false });
   };
@@ -206,7 +206,7 @@ const Task = ({
     );
     setTasks(updatedTasks);
     axios
-      .put(`https://project-management-backend-vrup.onrender.com/api/tasks/${projectId}/${taskId}`, { assignedTo: newAssignee })
+      .put(`https://project-management-backend-app.onrender.com/api/tasks/${projectId}/${taskId}`, { assignedTo: newAssignee })
       .catch((error) => console.error("Error updating task assignee:", error));
     setAssigneeDropdownVisible({ id: null, visible: false });
   };

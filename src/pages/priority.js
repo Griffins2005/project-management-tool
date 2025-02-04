@@ -17,7 +17,7 @@ const Priority = () => {
 
   const chartRef = useRef(null);
 
-  const API_URL = "https://project-management-backend-vrup.onrender.com/api";
+  const API_URL = "https://project-management-backend-app.onrender.com/api";
 
   const fetchPriorities = async () => {
     try {

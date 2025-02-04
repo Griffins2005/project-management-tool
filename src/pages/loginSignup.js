@@ -11,7 +11,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.open("https://project-management-backend-vrup.onrender.com/api/auth/google", "_self");
+    window.open("https://project-management-backend-app.onrender.com/api/auth/google", "_self");
     handleSuccessLogin();
   };
 

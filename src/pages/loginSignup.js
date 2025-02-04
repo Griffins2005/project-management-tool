@@ -1,10 +1,10 @@
 import React from "react";
-import google from "../assets/google.png"
-import logo from "../assets/logo.png"
+import google from "../assets/google.png";
+import logo from "../assets/logo.png";
 
 const Login = () => {
   const handleGoogleLogin = () => {
-    window.open("https://project-management-backend-app.onrender.com/api/auth/google", "_self");
+    window.location.href = "https://project-management-backend-app.onrender.com/api/auth/google";
   };
 
   return (

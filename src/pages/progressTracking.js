@@ -21,8 +21,8 @@ const ProgressTracking = () => {
       setLoading(true);
       try {
         const [statusesResponse, tasksResponse] = await Promise.all([
-          fetch(`${API_URL}/statuses`),
-          fetch(`${API_URL}/tasks`),
+          fetch(`https://project-management-backend-tool.vercel.app/statuses`),
+          fetch(`https://project-management-backend-tool.vercel.app/tasks`),
         ]);
 
         if (!statusesResponse.ok || !tasksResponse.ok) {

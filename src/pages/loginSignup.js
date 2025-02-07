@@ -4,7 +4,7 @@ import logo from "../assets/logo.png";
 
 const Login = () => {
   const handleGoogleLogin = () => {
-    window.location.href = "https://project-management-backend-app.onrender.com/api/auth/google";
+    window.location.href = "https://project-management-backend-tool.onrender.com/api/auth/google";
   };
 
   return (

@@ -10,6 +10,15 @@ main {
   display: flex;
   min-height: 100vh;
 }
+@media screen  and ( max-width: 600px) {
+  .sidebar {
+    width: 500px;
+    flex-direction: row;
+  }
+  .project-page {
+    flex-direction: column;
+  }
+}
 .sidebar {
   width: 180px;
   background-color: #282c34;

@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Pie } from "react-chartjs-2";
-import { useCallback } from "react";
-import {Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -11,26 +10,27 @@ const ProgressTracking = () => {
   const [taskCounts, setTaskCounts] = useState({});
   const [formVisible, setFormVisible] = useState(false);
   const [editStatus, setEditStatus] = useState(null);
-  const [newStatus, setNewStatus] = useState({
-    name: "",
-  });
+  const [newStatus, setNewStatus] = useState({ name: "" });
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const API_URL = `https://project-management-backend-tool.vercel.app`;
+  const API_URL = "https://project-management-backend-tool.vercel.app";
 
   const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
       const [statusesResponse, tasksResponse] = await Promise.all([
         fetch(`${API_URL}/statuses`),
         fetch(`${API_URL}/tasks`),
       ]);
-  
+
       if (!statusesResponse.ok || !tasksResponse.ok) {
         throw new Error("Failed to fetch data");
       }
-  
+
       const statusesData = await statusesResponse.json();
       const tasksData = await tasksResponse.json();
-  
+
       const counts = {};
       tasksData.forEach((task) => {
         if (counts[task.status]) {
@@ -39,14 +39,20 @@ const ProgressTracking = () => {
           counts[task.status] = 1;
         }
       });
-  
+
       setStatuses(statusesData);
       setTaskCounts(counts);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setErrorMessage("Error fetching data. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   }, [API_URL]);
-  
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const saveStatus = async () => {
     try {
@@ -114,10 +120,6 @@ const ProgressTracking = () => {
     setFormVisible(true);
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
   const chartData = {
     labels: statuses.map((status) => status.name),
     datasets: [
@@ -162,6 +164,12 @@ const ProgressTracking = () => {
     <div className="progress-tracking">
       <h1>Progress Tracking</h1>
 
+      {/* Loading Spinner */}
+      {loading && <div className="loading">Loading...</div>}
+
+      {/* Error Message */}
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
+
       {/* Combined Table */}
       <div className="status-table">
         <button onClick={() => setFormVisible(true)}>Add New Status</button>
@@ -193,41 +201,45 @@ const ProgressTracking = () => {
         )}
 
         {/* Status Table */}
-        <table>
-          <thead>
-            <tr>
-              <th>Status</th>
-              <th>Task Count</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {statuses.map((status) => (
-              <tr key={status._id}>
-                <td>{status.name}</td>
-                <td>{taskCounts[status.name] || 0}</td>
-                <td>
-                  <button
-                    className="edit-btn"
-                    onClick={() => handleEdit(status)}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteStatus(status._id)}
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
+        {statuses.length === 0 ? (
+          <p>No statuses available.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Task Count</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {statuses.map((status) => (
+                <tr key={status._id}>
+                  <td>{status.name}</td>
+                  <td>{taskCounts[status.name] || 0}</td>
+                  <td>
+                    <button
+                      className="edit-btn"
+                      onClick={() => handleEdit(status)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="delete-btn"
+                      onClick={() => deleteStatus(status._id)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Pie Chart */}
-      <div className="chart-container" style={{ width: "400px", margin: "20px auto" }}>
+      <div className="chart">
         <Pie data={chartData} options={chartOptions} />
       </div>
     </div>

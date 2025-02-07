@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
@@ -16,43 +16,39 @@ const ProgressTracking = () => {
 
   const API_URL = `https://project-management-backend-tool.vercel.app`;
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [statusesResponse, tasksResponse] = await Promise.all([
-        fetch(`${API_URL}/statuses`),
-        fetch(`${API_URL}/tasks`),
-      ]);
-
-      if (!statusesResponse.ok || !tasksResponse.ok) {
-        throw new Error("Failed to fetch data");
-      }
-
-      const statusesData = await statusesResponse.json();
-      const tasksData = await tasksResponse.json();
-
-      const counts = {};
-      tasksData.forEach((task) => {
-        if (counts[task.status]) {
-          counts[task.status]++;
-        } else {
-          counts[task.status] = 1;
-        }
-      });
-
-      setStatuses(statusesData);
-      setTaskCounts(counts);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setErrorMessage("Error fetching data. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  }, [API_URL]);
-
   useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [statusesResponse, tasksResponse] = await Promise.all([
+          fetch(`${API_URL}/statuses`),
+          fetch(`${API_URL}/tasks`),
+        ]);
+
+        if (!statusesResponse.ok || !tasksResponse.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const statusesData = await statusesResponse.json();
+        const tasksData = await tasksResponse.json();
+
+        const counts = tasksData.reduce((acc, task) => {
+          acc[task.status] = (acc[task.status] || 0) + 1;
+          return acc;
+        }, {});
+
+        setStatuses(statusesData);
+        setTaskCounts(counts);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setErrorMessage("Error fetching data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
-  }, [fetchData]);
+  }, []);
 
   const saveStatus = async () => {
     try {
@@ -73,13 +69,13 @@ const ProgressTracking = () => {
 
       const data = await response.json();
 
-      if (editStatus) {
-        setStatuses((prevStatuses) =>
-          prevStatuses.map((status) => (status._id === data._id ? data : status))
-        );
-      } else {
-        setStatuses((prevStatuses) => [...prevStatuses, data]);
-      }
+      setStatuses((prevStatuses) =>
+        editStatus
+          ? prevStatuses.map((status) =>
+              status._id === data._id ? data : status
+            )
+          : [...prevStatuses, data]
+      );
 
       resetForm();
     } catch (error) {
@@ -113,9 +109,7 @@ const ProgressTracking = () => {
   };
 
   const handleEdit = (status) => {
-    setNewStatus({
-      name: status.name,
-    });
+    setNewStatus({ name: status.name });
     setEditStatus(status);
     setFormVisible(true);
   };
@@ -150,13 +144,8 @@ const ProgressTracking = () => {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: "Task Distribution by Status",
-      },
+      legend: { position: "top" },
+      title: { display: true, text: "Task Distribution by Status" },
     },
   };
 
@@ -164,17 +153,12 @@ const ProgressTracking = () => {
     <div className="progress-tracking">
       <h1>Progress Tracking</h1>
 
-      {/* Loading Spinner */}
       {loading && <div className="loading">Loading...</div>}
-
-      {/* Error Message */}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
 
-      {/* Combined Table */}
       <div className="status-table">
         <button onClick={() => setFormVisible(true)}>Add New Status</button>
 
-        {/* Add/Edit Status Form */}
         {formVisible && (
           <div className="status-form">
             <h2>{editStatus ? "Edit Status" : "Add Status"}</h2>
@@ -200,7 +184,6 @@ const ProgressTracking = () => {
           </div>
         )}
 
-        {/* Status Table */}
         {statuses.length === 0 ? (
           <p>No statuses available.</p>
         ) : (
@@ -218,16 +201,10 @@ const ProgressTracking = () => {
                   <td>{status.name}</td>
                   <td>{taskCounts[status.name] || 0}</td>
                   <td>
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleEdit(status)}
-                    >
+                    <button className="edit-btn" onClick={() => handleEdit(status)}>
                       <FaEdit />
                     </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => deleteStatus(status._id)}
-                    >
+                    <button className="delete-btn" onClick={() => deleteStatus(status._id)}>
                       <FaTrash />
                     </button>
                   </td>
@@ -238,7 +215,6 @@ const ProgressTracking = () => {
         )}
       </div>
 
-      {/* Pie Chart */}
       <div className="chart">
         <Pie data={chartData} options={chartOptions} />
       </div>

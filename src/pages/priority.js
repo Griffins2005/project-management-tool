@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, PieController } from "chart.js";
 import { FaPlus, FaEdit, FaSave, FaTrash } from "react-icons/fa";
@@ -17,9 +17,9 @@ const Priority = () => {
 
   const chartRef = useRef(null);
 
-  const API_URL = "https://project-management-backend-tool.onrender.com/api";
+  const API_URL = `https://project-management-backend-tool.vercel.app/api`;
 
-  const fetchPriorities = async () => {
+  const fetchPriorities = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/priorities`);
       if (!response.ok) {
@@ -30,21 +30,21 @@ const Priority = () => {
     } catch (error) {
       console.error("Error fetching priorities:", error);
     }
-  };
+  }, [API_URL]);
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/tasks`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Fetched tasks:", data); 
+      console.log("Fetched tasks:", data);
       setTasks(data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
-  };
+  }, [API_URL]);
 
   const addOrUpdatePriority = async () => {
     try {
@@ -101,10 +101,10 @@ const Priority = () => {
   };
 
   useEffect(() => {
-    console.log("Fetching data..."); 
+    console.log("Fetching data...");
     fetchPriorities();
     fetchTasks();
-  }, []);
+  }, [fetchPriorities, fetchTasks]);
 
   const calculateTaskCounts = () => {
     const counts = priorities.map((priority) => {

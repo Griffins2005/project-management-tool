@@ -23,7 +23,7 @@ const Project = () => {
 
   const fetchStatuses = async () => {
     try {
-      const response = await axios.get("https://project-management-backend-tool.onrender.com/api/statuses");
+      const response = await axios.get(`https://project-management-backend-tool.vercel.app/api/statuses`);
       setStatuses(response.data);
     } catch (error) {
       console.error("Error fetching statuses:", error);
@@ -32,7 +32,7 @@ const Project = () => {
 
   const fetchTeamMembers = async () => {
     try {
-      const response = await axios.get("https://project-management-backend-tool.onrender.com/api/team/members");
+      const response = await axios.get(`https://project-management-backend-tool.vercel.app/api/team/members`);
       setTeamMembers(response.data);
     } catch (error) {
       console.error("Error fetching team members:", error);
@@ -41,7 +41,7 @@ const Project = () => {
 
   const fetchPriorities = async () => {
     try {
-      const response = await axios.get("https://project-management-backend-tool.onrender.com/api/priorities");
+      const response = await axios.get(`https://project-management-backend-tool.vercel.app/api/priorities`);
       setPriorities(response.data);
     } catch (error) {
       console.error("Error fetching priorities:", error);
@@ -50,7 +50,7 @@ const Project = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await axios.get("https://project-management-backend-tool.onrender.com/api/projects");
+      const response = await axios.get(`https://project-management-backend-tool.vercel.app/api/projects`);
       console.log("Projects fetched:", response.data);
       setProjects(response.data);
 
@@ -67,7 +67,7 @@ const Project = () => {
   const createProject = async () => {
     if (!newProjectName.trim()) return;
     try {
-      const response = await axios.post("https://project-management-backend-tool.onrender.com/api/projects", { name: newProjectName });
+      const response = await axios.post(`https://project-management-backend-tool.vercel.app/api/projects`, { name: newProjectName });
       setProjects([...projects, response.data]);
       setNewProjectName("");
       setShowCreateProjectForm(false);
@@ -83,7 +83,7 @@ const Project = () => {
 
   const updateProject = async (id, newName) => {
     try {
-      await axios.put(`https://project-management-backend-tool.onrender.com/api/projects/${id}`, { name: newName });
+      await axios.put(`https://project-management-backend-tool.vercel.app/api/projects/${id}`, { name: newName });
       const updatedProjects = projects.map((project) =>
         project.id === id ? { ...project, name: newName } : project
       );
@@ -100,8 +100,8 @@ const Project = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`https://project-management-backend-tool.onrender.com/api/projects/${id}`);
-      await axios.delete(`https://project-management-backend-tool.onrender.com/api/tasks?projectId=${id}`);
+      await axios.delete(`https://project-management-backend-tool.vercel.app/api/projects/${id}`);
+      await axios.delete(`https://project-management-backend-tool.vercel.app/api/tasks?projectId=${id}`);
       setProjects(projects.filter((project) => project.id !== id));
 
       if (selectedProjectId === id && projects.length > 0) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Pie } from "react-chartjs-2";
+import { useCallback } from "react";
 import {Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -14,22 +15,22 @@ const ProgressTracking = () => {
     name: "",
   });
 
-  const API_URL = "https://project-management-backend-tool.onrender.com";
+  const API_URL = `https://project-management-backend-tool.vercel.app`;
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [statusesResponse, tasksResponse] = await Promise.all([
         fetch(`${API_URL}/statuses`),
         fetch(`${API_URL}/tasks`),
       ]);
-
+  
       if (!statusesResponse.ok || !tasksResponse.ok) {
         throw new Error("Failed to fetch data");
       }
-
+  
       const statusesData = await statusesResponse.json();
       const tasksData = await tasksResponse.json();
-
+  
       const counts = {};
       tasksData.forEach((task) => {
         if (counts[task.status]) {
@@ -38,13 +39,14 @@ const ProgressTracking = () => {
           counts[task.status] = 1;
         }
       });
-
+  
       setStatuses(statusesData);
       setTaskCounts(counts);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
+  }, [API_URL]);
+  
 
   const saveStatus = async () => {
     try {
@@ -114,7 +116,7 @@ const ProgressTracking = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const chartData = {
     labels: statuses.map((status) => status.name),

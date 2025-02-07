@@ -14,7 +14,7 @@ const ProgressTracking = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const API_URL = "https://project-management-backend-tool.vercel.app";
+  const API_URL = `https://project-management-backend-tool.vercel.app`;
 
   const fetchData = useCallback(async () => {
     setLoading(true);
